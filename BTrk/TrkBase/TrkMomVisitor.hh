@@ -25,7 +25,7 @@ class NeutTraj;
 class CosmicLineTraj;
 
 // Class interface //
-class TrkMomVisitor : public CosmicTrkVisitor {
+class TrkMomVisitor : public TrkVisitor {
 
 public:
 
