@@ -10,12 +10,11 @@
 //	Copyright (C) 1997	Lawrence Berkeley Laboratory
 //
 // Author List:
-//      Dave Brown 3/15/97
+//      Dave Brown 3/15/97 Cosmics added by S Middleton(2020)
 //------------------------------------------------------------------------
-
 #include "BTrk/BaBar/BaBar.hh"
 #include "BTrk/BaBar/BbrCollectionUtils.hh"
-#include "BTrk/KalmanTrack/KalRep.hh"
+
 #include "BTrk/KalmanTrack/KalHit.hh"
 #include "BTrk/KalmanTrack/KalMaterial.hh"
 #include "BTrk/KalmanTrack/KalEndSite.hh"
@@ -32,12 +31,18 @@
 #include "BTrk/TrkBase/TrkVolume.hh"
 #include "BTrk/TrkBase/TrkSimpTraj.hh"
 #include "BTrk/TrkBase/HelixTraj.hh"
-#include "BTrk/TrkBase/TrkMomCalculator.hh"
+
 #include "BTrk/TrkBase/TrkSimpTraj.hh"
 #include "BTrk/BaBar/ErrLog.hh"
 #include "BTrk/BbrGeom/BbrVectorErr.hh"
 
 #include "CLHEP/Vector/ThreeVector.h"
+
+//For Cosmics:
+#include "BTrk/TrkBase/CosmicTrkMomCalc.hh"
+#include "BTrk/TrkBase/CosmicLineTraj.hh"
+#include "BTrk/TrkBase/CosmicLineParams.hh"
+#include "BTrk/TrkBase/KalRep.hh" 
 
 #include <math.h>
 #include <algorithm>
@@ -62,6 +67,12 @@ KalRep::init(const HelixParams& inPar)
 {
 //  Construct the seed traj as a helix from the input parameters, using the origin
   _seedtraj = new HelixTraj(inPar);
+  initFromSeed();
+}
+
+void
+KalRep::init(const CosmicLineParams& inPar){
+  _seedtraj = new CosmicLineTraj(inPar);
   initFromSeed();
 }
 
@@ -96,9 +107,9 @@ KalRep::initRep() {
 // set the seed mom to the begining of the hit range
   _refmomfltlen = _fitrange[0];
 // compute the seed momentum from this (+ the bfield)
-  Hep3Vector momvec = TrkMomCalculator::vecMom(*_seedtraj,_kalcon.bField(),_refmomfltlen);
+  Hep3Vector momvec = CosmicTrkMomCalc::vecMom(*_seedtraj,_kalcon.bField(),_refmomfltlen);
   _refmom = momvec.mag();
-  _charge = TrkMomCalculator::charge(*_seedtraj,_kalcon.bField(),_refmomfltlen);
+  _charge = CosmicTrkMomCalc::charge(*_seedtraj,_kalcon.bField(),_refmomfltlen);
 // build the initial reference trajectory
   if(_reftraj == 0)buildRefTraj();
 // Initialize _ptraj to _reftraj. This is needed
@@ -177,9 +188,7 @@ KalRep::~KalRep(){
 // delete integrator
 }
 
-//
-//  Return exchange par of rep.
-//
+
 HelixParams
 KalRep::helix(double fltlen) const {
   double locflight;
@@ -187,22 +196,25 @@ KalRep::helix(double fltlen) const {
 // make sure the reference point is at the origin
 // set origin to a nominal value DNB_RKK
   static const HepPoint origin(0.0,0.0,0.0);
-  if(ltraj->referencePoint() == origin){
-    return HelixParams(ltraj->parameters()->parameter(), 
+  return HelixParams(ltraj->parameters()->parameter(), 
 			  ltraj->parameters()->covariance());
-  } else {
-// clone the trajectory, and change its reference point to the origin
-    TrkSimpTraj* otraj = ltraj->clone();
-    double olen = locflight - fltlen;
-    otraj->changePoint(origin,olen);
-    HelixParams outpar(otraj->parameters()->parameter(), 
-			  otraj->parameters()->covariance());
-    delete otraj;
-    return outpar;
-  }
 }
-//
-//  Chisquared function; allow this to work even with 1-directional fits
+
+
+
+
+
+CosmicLineParams KalRep::cosmic(double fltlen) const {
+  double locflight;
+  const TrkSimpTraj* ltraj = localTrajectory(fltlen,locflight);
+
+  static const HepPoint origin(0.0,0.0,0.0);
+  
+    return CosmicLineParams(ltraj->parameters()->parameter(), 
+			  ltraj->parameters()->covariance());
+}
+
+//Chisquared function; allow this to work even with 1-directional fits
 double
 KalRep::chisq() const {
   if(hasFit(trkIn))
@@ -211,8 +223,7 @@ KalRep::chisq() const {
     return chisquared(trkOut);
 }
 //
-double
-KalRep::chisquared(trkDirection tdir) const {
+double KalRep::chisquared(trkDirection tdir) const {
 //  See if the cache is valid (it's self-flagging)
   if(_chisq[tdir] < 0.0) {
     if(hasFit(tdir)){
@@ -226,8 +237,7 @@ int nsites = _sites.size();
   return _chisq[tdir];
 }
 
-double
-KalRep::chisquared(int startsite,int nsites,trkDirection tdir) const {
+double KalRep::chisquared(int startsite,int nsites,trkDirection tdir) const {
   int sitestep = tdir==trkOut ? 1 : -1;
   int isite(startsite);
   const KalSite* prevsite = _sites[isite];
@@ -245,7 +255,6 @@ KalRep::chisquared(int startsite,int nsites,trkDirection tdir) const {
   return chisum;
 }
 
-//
 double
 KalRep::chisquared(double fltlen,trkDirection tdir) const {
 // first, find the sites; I really want 1 past the one found by this function
@@ -468,7 +477,7 @@ KalRep::fit(){
       ErrMsg(error) << "Can't find local trajectory for charge measurement!" << endmsg;
       loctraj = _seedtraj;
     }
-    _charge = TrkMomCalculator::charge(*loctraj,_kalcon.bField(),loclen);
+    _charge = CosmicTrkMomCalc::charge(*loctraj,_kalcon.bField(),loclen);
   }  else {
    // make sure a failed fit is neither valid nor current
        setValid(false);
@@ -907,7 +916,7 @@ KalRep::extendThrough(double newf) {
 	    localTrajectory(_sites.front()->globalLength(),loclen);
 	  if(reftraj != 0){
 // get the momentum from this using the mom calculator
-	    Hep3Vector momvec = TrkMomCalculator::vecMom(*reftraj,_kalcon.bField(),loclen);
+	    Hep3Vector momvec = CosmicTrkMomCalc::vecMom(*reftraj,_kalcon.bField(),loclen);
 	    extendmom = momvec.mag();
 	  } else
 	    return TrkErrCode(TrkErrCode::fail,KalCodes::momentum,
@@ -1216,7 +1225,7 @@ KalRep::momentum(double fltL) const {
 //  static const BField* theField = new BFieldFixed(0.0,0.0,1.0);
   double localFlt = 0.;
   const TrkSimpTraj* locTraj = localTrajectory(fltL,localFlt);
-  return TrkMomCalculator::vecMom(*locTraj, _kalcon.bField(), localFlt);
+  return CosmicTrkMomCalc::vecMom(*locTraj, _kalcon.bField(), localFlt);
 }
 
 //----------------------------------------------------------------------
@@ -1236,7 +1245,7 @@ KalRep::momentumErr(double fltL) const {
   
   double localFlt = 0.;
   const TrkSimpTraj* locTraj = localTrajectory(fltL,localFlt);
-  return TrkMomCalculator::errMom(*locTraj, _kalcon.bField(), localFlt);
+  return CosmicTrkMomCalc::errMom(*locTraj, _kalcon.bField(), localFlt);
 }
 
 
@@ -1288,7 +1297,7 @@ KalRep::posmomCov(double fltL) const {
   const BField& theField = _kalcon.bField();
   double localFlt = 0.;
   const TrkSimpTraj* locTraj = localTrajectory(fltL,localFlt);
-  return TrkMomCalculator::posmomCov(*locTraj, theField, localFlt);
+  return CosmicTrkMomCalc::posmomCov(*locTraj, theField, localFlt);
 }
 
 //------------------------------------------------------------------------
@@ -1301,7 +1310,7 @@ KalRep::getAllCovs(double fltL,
   const BField& theField = _kalcon.bField();
   double localFlt = 0.;
   const TrkSimpTraj* locTraj = localTrajectory(fltL,localFlt);
-  TrkMomCalculator::getAllCovs(*locTraj, theField, localFlt,
+  CosmicTrkMomCalc::getAllCovs(*locTraj, theField, localFlt,
 			      xxCov,ppCov,xpCov); 
 }
 
@@ -1317,7 +1326,7 @@ KalRep::getAllWeights(double fltL,
   const BField& theField = _kalcon.bField();
   double localFlt = 0.;
   const TrkSimpTraj* locTraj = localTrajectory(fltL,localFlt);
-  TrkMomCalculator::getAllWeights(*locTraj, theField, localFlt,
+  CosmicTrkMomCalc::getAllWeights(*locTraj, theField, localFlt,
 			      pos,mom,xxWeight,ppWeight,xpWeight); 
 
 }
@@ -1641,7 +1650,7 @@ KalRep::updateRefMom() {
   const TrkSimpTraj* reftraj = localTrajectory(_refmomfltlen,loclen);
   if(reftraj != 0){
 // get the momentum from this using the mom calculator
-    Hep3Vector momvec = TrkMomCalculator::vecMom(*reftraj,_kalcon.bField(),loclen);
+    Hep3Vector momvec = CosmicTrkMomCalc::vecMom(*reftraj,_kalcon.bField(),loclen);
     double delmom = momvec.mag()-_refmom;
     double momfac = 1.0;
     double floor = 0.5 ;

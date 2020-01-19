@@ -7,7 +7,7 @@
 // Environment:
 //      Software developed for the BaBar Detector at the SLAC B-Factory.
 //
-// Author(s): Justin Albert, Steve Schaffner
+// Author(s): Justin Albert, Steve Schaffner, added Cosmics S. Middleton (2020)
 //
 //------------------------------------------------------------------------
 #include "BTrk/BaBar/BaBar.hh"
@@ -23,9 +23,7 @@ TrkMomVisitor::~TrkMomVisitor() {
 //------------------------------------------------------------------------
 TrkMomVisitor::TrkMomVisitor(const TrkSimpTraj& theTraj) {
 //------------------------------------------------------------------------
-// accept this puppy
-
-  theTraj.visitAccept(this);
+	theTraj.visitAccept(this);
 }
 
 //------------------------------------------------------------------------
@@ -37,6 +35,7 @@ TrkMomVisitor::trkVisitHelixTraj(const HelixTraj* theTraj) {
   _ht = theTraj;
   _ct = 0;
   _nt = 0;
+  _cos = 0;
 }
 
 //------------------------------------------------------------------------
@@ -48,6 +47,7 @@ TrkMomVisitor::trkVisitCircleTraj(const TrkCircleTraj* theTraj) {
   _ht = 0;
   _ct = theTraj;
   _nt = 0;
+  _cos =0;
 }
 
 //------------------------------------------------------------------------
@@ -59,8 +59,18 @@ TrkMomVisitor::trkVisitNeutTraj(const NeutTraj* theTraj) {
   _ht = 0;
   _ct = 0;
   _nt = theTraj;
+  _cos = 0;
 }
 
+//------------------------------------------------------------------------
+void
+TrkMomVisitor::trkVisitCosmicLineTraj(const CosmicLineTraj* theTraj) {
+//------------------------------------------------------------------------
+// set the "array"
 
-
+  _ht = 0;
+  _ct = 0;
+  _nt = 0;
+  _cos = theTraj;
+}
 

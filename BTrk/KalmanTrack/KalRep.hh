@@ -37,6 +37,7 @@
 
 class TrkDifTraj;
 class HelixParams;
+class CosmicLineParams;
 class TrkHit;
 class TrkFundHit;
 class TrkVolume;
@@ -59,6 +60,7 @@ public:
 // Local helix parameters and trajectory access
 //******************************************
   HelixParams helix(double fltLen) const;
+  CosmicLineParams cosmic(double fltLen) const;
   const TrkSimpTraj* localTrajectory(double fltlen,double& loclen) const;
   const TrkDifTraj& traj() const { return (TrkDifTraj&)pieceTraj(); }
   const TrkDifPieceTraj& pieceTraj() const;
@@ -320,7 +322,7 @@ private:
   TrkDifPieceTraj* _ptraj; // piecewise trajectory
   TrkDifPieceTraj* _reftraj; // reference for derivatives + residuals
   KalContext const& _kalcon; // context for this rep
-  TrkSimpTraj* _seedtraj; // seed trajectory for the fit
+  TrkSimpTraj* _seedtraj; // seed trajectory for the fit //TODO this can be either cosmic or helix as both inherit the TrkSimpTrj
   KalMaterial* _stopsite;// stopping info
 
   std::vector<KalSite*> _sites; // sorted list of sites
@@ -380,6 +382,7 @@ private:
   void setExtendable(trkDirection idir); 
 // helper allowing similar constructors to share code
   void init(const HelixParams&);
+  void init(const CosmicLineParams&);
 // same, using seed parameters
   void initFromSeed();
 	void initRep();

@@ -11,7 +11,7 @@
 // Environment:
 //      Software developed for the BaBar Detector at the SLAC B-Factory.
 //
-// Author(s): Justin Albert, Steve Schaffner
+// Author(s): Justin Albert, Steve Schaffner, Cosmic addation by S. Middleton (2020)
 //
 //------------------------------------------------------------------------
 
@@ -21,6 +21,7 @@
 class HelixTraj;
 class TrkCircleTraj;
 class NeutTraj;
+class CosmicLineTraj;
 
 // Class interface //
 class TrkVisitor {
@@ -37,7 +38,7 @@ public:
   virtual void trkVisitHelixTraj(const HelixTraj*) = 0;
   virtual void trkVisitCircleTraj(const TrkCircleTraj*) = 0;
   virtual void trkVisitNeutTraj(const NeutTraj*) = 0;
-
+  virtual void trkVisitCosmicTraj(const CosmicLineTraj*) = 0;
 
 };
 
