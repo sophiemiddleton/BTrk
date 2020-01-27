@@ -8,14 +8,14 @@
 #include "CLHEP/Vector/ThreeVector.h"
 #include "CLHEP/Matrix/SymMatrix.h"
 #include "BTrk/TrkBase/HelixTraj.hh"
-#include "CosmicReco/inc/CosmicTrkVisitor.hh"
+#include "BTrk/TrkBase/TrkVisitor.hh"
 #include "BTrk/difAlgebra/DifNumber.hh"
 #include "BTrk/difAlgebra/DifPoint.hh"
 #include "BTrk/difAlgebra/DifVector.hh"
 #include "BTrk/BbrGeom/BbrAngle.hh"
-#include "CosmicReco/inc/CosmicLineParams.hh"
-#include "CosmicReco/inc/CosmicLineTraj.hh"
-#include "CosmicReco/inc/CosmicTrkMomVisitor.hh"
+#include "BTrk/TrkBase/CosmicLineParams.hh"
+#include "BTrk/TrkBase/CosmicLineTraj.hh"
+#include "BTrk/TrkBase/TrkMomVisitor.hh"
 #include "BTrk/BaBar/ErrLog.hh"
 using std::endl;
 using std::ostream;
@@ -84,12 +84,12 @@ CosmicLineTraj::~CosmicLineTraj()
 double
 CosmicLineTraj::z(const double& f) const  
 {
-  return  (d0()*tan(theta())*cos(phi() - phi0())+referencePoint().z()f*cos(theta()); 
+  return  (d0()*tan(theta())*sin(phi() - phi0()))+referencePoint().z()+f*cos(theta()); 
 }
 
 //Z0: returns the POCA z0 value.
-CosmicLineTraj::z0() const {
- return (d0()*tan(theta())*sin(phi() - phi0());
+double CosmicLineTraj::z0() const {
+ return (d0()*tan(theta())*sin(phi() - phi0()))+referencePoint().z();
 
 }
 
@@ -108,7 +108,7 @@ CosmicLineTraj::position(double f) const
   //keep definition the same as for Helix for consistancy:
   double x_pos = -1*d0()*sphi0+referencePoint().x() + cos(phi())*sin(theta())*f;
   double y_pos = d0()*cphi0+referencePoint().y()+  sin(theta())*sin(phi())*f;
-  double z_pos = d0()*tan(phi()-phi0())+referencePoint().z() + cos(theta())*f;
+  double z_pos = d0()*tan(theta())*sin(phi()-phi0())+referencePoint().z() + cos(theta())*f;
   return HepPoint(x_pos, y_pos, z_pos);
 }
 
@@ -227,7 +227,7 @@ HepMatrix CosmicLineTraj::derivPFract(double fltLen) const {
      HepMatrix dmomfrac(NHLXPRM,1);
     
      dmomfrac(phiIndex+1,1) = 0;
-     dmomfrac(theta0Index+1,1) = 0;
+     dmomfrac(thetaIndex+1,1) = 0;
      dmomfrac(d0Index+1,1) = 0;
      dmomfrac(phi0Index+1,1) = 0;
      return dmomfrac;
@@ -252,12 +252,14 @@ CosmicLineTraj::getDFInfo(double flt, DifPoint& pos, DifVector& dir,
   DifNumber phiDf(phi(), phiIndex+1, NHLXPRM);
   phiDf.setIndepPar( parameters() );
 
-  static DifNumber sTheta; 
+  static DifNumber sTheta, cTheta; 
   thetaDf.cosAndSin(cTheta, sTheta);
   static DifNumber sinPhi0, cosPhi0; 
   phi0Df.cosAndSin(cosPhi0, sinPhi0);
   static DifNumber sinPhi, cosPhi; 
   phi0Df.cosAndSin(cosPhi, sinPhi);
+  static DifNumber tanTheta;
+  tanTheta = sTheta/cTheta;
 
   bool lref = (referencePoint().x() != 0. || referencePoint().y() != 0. ||
                referencePoint().z() != 0.);
@@ -265,7 +267,7 @@ CosmicLineTraj::getDFInfo(double flt, DifPoint& pos, DifVector& dir,
 
   DifNumber x =  sTheta*flt*cosPhi - d0Df*sinPhi0;
   DifNumber y =  sTheta*flt*sinPhi + d0Df*cosPhi0;
-  DifNumber z =  d0Df*tan(phiDf-phi0Df) + flt*cTheta;
+  DifNumber z =  d0Df*tanTheta*sin(phiDf-phi0Df) + flt*cTheta;
   pos =  DifPoint(x, y, z);
   dir = DifVector( cosPhi*sTheta, sinPhi*sTheta, cTheta);
   delDir = DifVector(0., 0., 0.);
@@ -283,7 +285,7 @@ CosmicLineTraj::getDFInfo(double flt, DifPoint& pos, DifVector& dir,
 
 
 
-void CosmicLineTraj::getDFInfo2(double flt, DifPoint& pos, DifVector& dir) const //TODO
+void CosmicLineTraj::getDFInfo2(double flt, DifPoint& pos, DifVector& dir) const 
 {
   //Provides difNum version of information for calculation of derivatives.
   //  All arithmetic operations have been replaced by +=, etc. versions 
@@ -299,12 +301,14 @@ void CosmicLineTraj::getDFInfo2(double flt, DifPoint& pos, DifVector& dir) const
   DifNumber phiDf(phi(), phiIndex+1, NHLXPRM);
   phiDf.setIndepPar( parameters() );
 
-  static DifNumber sTheta; 
+  static DifNumber sTheta, cTheta; 
   thetaDf.cosAndSin(cTheta, sTheta);
   static DifNumber sinPhi0, cosPhi0; 
   phi0Df.cosAndSin(cosPhi0, sinPhi0);
   static DifNumber sinPhi, cosPhi; 
   phi0Df.cosAndSin(cosPhi, sinPhi);
+  static DifNumber tanTheta;
+  tanTheta = sTheta/cTheta;
 
   bool lref = (referencePoint().x() != 0. || referencePoint().y() != 0. ||
                referencePoint().z() != 0.);
@@ -312,10 +316,10 @@ void CosmicLineTraj::getDFInfo2(double flt, DifPoint& pos, DifVector& dir) const
 
   DifNumber x =  sTheta*flt*cosPhi - d0Df*sinPhi0;
   DifNumber y =  sTheta*flt*sinPhi + d0Df*cosPhi0;
-  DifNumber z =  d0Df*tan(phiDf-phi0Df) + flt*cTheta;
+  DifNumber z =  d0Df*tanTheta*sin(phiDf-phi0Df) + flt*cTheta;
   pos =  DifPoint(x, y, z);
   dir = DifVector( cosPhi*sTheta, sinPhi*sTheta, cTheta);
-  delDir = DifVector(0., 0., 0.);
+ 
 
   if (lref) {
     DifNumber px(referencePoint().x());
@@ -331,7 +335,7 @@ void CosmicLineTraj::getDFInfo2(double flt, DifPoint& pos, DifVector& dir) const
 
 
 double
-CosmicLineTraj::curvature() const   //TODO 
+CosmicLineTraj::curvature(double fltLen) const   //TODO 
 {
 
   return 1;

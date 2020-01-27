@@ -38,7 +38,7 @@ public:
   virtual void trkVisitHelixTraj(const HelixTraj*) = 0;
   virtual void trkVisitCircleTraj(const TrkCircleTraj*) = 0;
   virtual void trkVisitNeutTraj(const NeutTraj*) = 0;
-  virtual void trkVisitCosmicTraj(const CosmicLineTraj*) = 0;
+  virtual void trkVisitCosmicLineTraj(const CosmicLineTraj*) = 0;
 
 };
 

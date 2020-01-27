@@ -9,8 +9,8 @@
 #include "BTrk/TrkBase/TrkKalDeriv.hh"
 #include "BTrk/TrkBase/TrkParams.hh"
 #include "BTrk/BbrGeom/HepPoint.h"
-#include "CosmicReco/inc/CosmicLineParams.hh" 
-#include "CosmicReco/inc/CosmicTrkVisitor.hh"
+#include "BTrk/TrkBase/CosmicLineParams.hh" 
+#include "BTrk/TrkBase/TrkVisitor.hh"
 #include <vector>
 
 class CosmicTrkVisitor;

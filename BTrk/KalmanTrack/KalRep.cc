@@ -42,7 +42,7 @@
 #include "BTrk/TrkBase/TrkMomCalculator.hh"
 #include "BTrk/TrkBase/CosmicLineTraj.hh"
 #include "BTrk/TrkBase/CosmicLineParams.hh"
-#include "BTrk/TrkBase/KalRep.hh" 
+#include "BTrk/KalmanTrack/KalRep.hh" 
 
 #include <math.h>
 #include <algorithm>
