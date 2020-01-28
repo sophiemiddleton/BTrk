@@ -15,22 +15,23 @@
 //      Software developed for the BaBar Detector at the SLAC B-Factory.
 //
 // Author(s): Justin Albert, Steve Schaffner
-//
+// cosmics added by S Middleton (2020)
 //------------------------------------------------------------------------
-
 #ifndef TRKMOMCALCULATOR_HH
 #define TRKMOMCALCULATOR_HH
 
 class TrkSimpTraj;
-class HelixTraj;
+class CosmicLineTraj;
 class BField;
+class HelixTraj;
 
 #include "CLHEP/Vector/ThreeVector.h"
+
 class BbrVectorErr;
 class DifNumber;
 
 // Class interface //
-class TrkMomCalculator {
+class TrkMomCalculator{
 
 public:
 
@@ -38,6 +39,10 @@ public:
   virtual ~TrkMomCalculator();
 
   //********************************
+  // The calculator functions:
+  //********************************
+
+ //********************************
   // The calculator functions:
   //********************************
 
@@ -49,7 +54,7 @@ public:
 // calculate the df form of the momentum magnitude.  This can be done for generic
 // trajectories, but is hideously inefficient
   static DifNumber momMag(const HelixTraj& theTraj, const BField&);
-
+  
   // Interface to vertexing algorithms (M.Bondioli 7/17/98)
   // covariance matrices of the track at fixed flight length 
   static CLHEP::HepMatrix    posmomCov(const TrkSimpTraj&,const BField&,
@@ -96,6 +101,7 @@ private:
   static double       calcCurvPtMom(const CLHEP::Hep3Vector&,  
                                     double curvature, 
 				    const BField&);
+
   static CLHEP::Hep3Vector   calcCurvVecMom(const CLHEP::Hep3Vector&, 
                                      double curvature, 
 				     const BField&);
@@ -104,13 +110,22 @@ private:
                                      double flt); 
   static BbrVectorErr calcNeutErrMom(const TrkSimpTraj&, const BField&,  
                                      double flt);
+  static BbrVectorErr calcCosmicLineErrMom(const TrkSimpTraj&, const BField&,  
+                                     double flt);
+
   static int          calcCurvCharge(const CLHEP::Hep3Vector&, 
+                                     double curvature, 
+				     const BField&);        
+
+  static int          calcCosmicLineCurvCharge(const CLHEP::Hep3Vector&, 
                                      double curvature, 
 				     const BField&);        
 
   static CLHEP::HepMatrix    calcCurvPosmomCov(const TrkSimpTraj&,const BField&,
 					double fltlen);
   static CLHEP::HepMatrix    calcNeutPosmomCov(const TrkSimpTraj&,const BField&,
+					double fltlen);
+  static CLHEP::HepMatrix    calcCosmicLinePosmomCov(const TrkSimpTraj&,const BField&,
 					double fltlen);
 
   static void         calcCurvAllCovs(const TrkSimpTraj&,const BField&,
@@ -131,12 +146,20 @@ private:
 				      CLHEP::HepSymMatrix& ppCov,
 				      CLHEP::HepMatrix&    xpCov);
 
+ 
   static void         calcNeutAllCovs(const TrkSimpTraj&,const BField&,
 				      double fltlen,
 				      CLHEP::HepVector& x0,CLHEP::HepVector& p0,
 				      CLHEP::HepSymMatrix& xxCov,
 				      CLHEP::HepSymMatrix& ppCov,
 				      CLHEP::HepMatrix&    xpCov);
+
+ static void         calcCosmicLineAllCovs(const TrkSimpTraj&,const BField&,
+				      double fltlen,
+				      CLHEP::HepSymMatrix& xxCov,
+				      CLHEP::HepSymMatrix& ppCov,
+				      CLHEP::HepMatrix&    xpCov);
+
 
   static void         calcCurvAllWeights(const TrkSimpTraj&,const BField&,
 					 double fltlen,
@@ -161,9 +184,18 @@ private:
 					 CLHEP::HepSymMatrix& xxWeight,
 					 CLHEP::HepSymMatrix& ppWeight,
 					 CLHEP::HepMatrix&    xpWeight);
+  static void         calcCosmicLineAllWeights(const TrkSimpTraj&,const BField&,
+					 double fltlen,
+					 CLHEP::HepVector& pos,
+					 CLHEP::HepVector& mom,
+					 CLHEP::HepSymMatrix& xxWeight,
+					 CLHEP::HepSymMatrix& ppWeight,
+					 CLHEP::HepMatrix&    xpWeight);
 
   static int          nearestInt(double);
 
 };
 
 #endif
+
+

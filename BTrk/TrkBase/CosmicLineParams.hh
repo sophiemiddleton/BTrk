@@ -19,7 +19,7 @@ Provisional parameterization of the KF linear trajectory class. The (geometric) 
 class CosmicLineParams : public TrkParams {
 public:
 
-  enum ParIndex {d0Index=0, phi0Index, thetaIndex, phiIndex,  NHLXPRM};
+  enum ParIndex {d0Index=0, phi0Index, thetaIndex, z0Index,  NHLXPRM};
 
   CosmicLineParams(const CLHEP::HepVector&, const CLHEP::HepSymMatrix&);
   ~CosmicLineParams();
@@ -29,7 +29,7 @@ public:
   double phi0() const                            {return parvec[phi0Index];}
  
   double theta() const                              {return parvec[thetaIndex];}
-  double phi() const                          {return parvec[phiIndex];}
+  double z0() const                          {return parvec[z0Index];}
 
   const CLHEP::HepVector& params() const                {return parvec;}
   CLHEP::HepVector& params()                            {return parvec;}
@@ -40,7 +40,7 @@ public:
   void setPhi0(double in)                        {parvec[phi0Index] = in;} 
 //Direction Parameters:
   void setTheta(double in)                          {parvec[thetaIndex] = in;} 
-  void setPhi(double in)                      {parvec[phiIndex] = in;} 
+  void setz0(double in)                      {parvec[z0Index] = in;} 
 
   void setError(const CLHEP::HepSymMatrix& in)          {parcov = in;}
 

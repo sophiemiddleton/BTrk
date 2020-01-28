@@ -13,19 +13,18 @@
 #include "BTrk/TrkBase/TrkVisitor.hh"
 #include <vector>
 
-class CosmicTrkVisitor;
+class TrkVisitor;
 #include "CLHEP/Matrix/Vector.h"
 #include "CLHEP/Matrix/SymMatrix.h"
 #include <iosfwd>
 
 #include "BTrk/TrkBase/TrkSimpTraj.hh"
-
 class CosmicLineParams;
 
 class CosmicLineTraj : public TrkSimpTraj {
 public:
 
-  enum ParIndex {d0Index=0, phi0Index, thetaIndex, phiIndex,  NHLXPRM};
+  enum ParIndex {d0Index=0, phi0Index, thetaIndex, z0Index,  NHLXPRM};
 
   CosmicLineTraj(const CLHEP::HepVector&,const CLHEP::HepSymMatrix&, double lowlim=-99999.,
 	    double hilim=99999., const HepPoint& refpoint = _theOrigin);
@@ -63,17 +62,16 @@ public:
   double d0() const {return parameters()->parameter()[d0Index];}
   double phi0() const{  return parameters()->parameter()[phi0Index]; }
   double theta() const {return parameters()->parameter()[thetaIndex]; }
-  double phi() const {  return parameters()->parameter()[phiIndex]; }
+  double z0() const {  return parameters()->parameter()[z0Index]; }
 
   virtual void visitAccept(TrkVisitor* vis) const;
   virtual void               print(std::ostream& os) const;
   virtual void 		     printAll(std::ostream& os) const;
 
   double z( const double& ) const;
-  double z0() const; //Added to get z0 from exisiting parameters
   double zFlight(double zpos, double POCAz) const;
   double angle(const double& f) const;
-  double mom() const; //Added --> will remove need for the CosmicTrkMom Calculations
+  double mom() const; 
   
   TranslateParams paramFunction() const; //not used
   void invertParams(TrkParams* newparams, std::vector<bool>& flags) const; // not used

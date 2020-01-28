@@ -22,7 +22,7 @@ CosmicLineParams::CosmicLineParams(const HepVector& params, const HepSymMatrix& 
 CosmicLineParams::~CosmicLineParams(){}
 
 void CosmicLineParams::print(ostream& o) const {
-  o << "theta="  << theta() << " phi="   << phi() 
+  o << "theta="  << theta() << " z0="   << z0() 
     << " d0 =" << d0() << " phi0 = " << phi0();
 }
 
