@@ -70,8 +70,9 @@ TrkMomCalculator::ptMom(const TrkSimpTraj& theTraj, const BField&
 
      return cosdip * ptot; 
 
-  } else if (theVisitor.cosmic) {
-     return theTraj.mom()*sin(theTraj.theta()) ; 
+  } else if (theVisitor.cosmicLine()!=0) {
+     double pt = theVisitor.cosmicLine()->mom()*sin(theVisitor.cosmicLine()->theta());
+     return pt ; 
    } else {
 
 // particle must be a plain line--no way to calculate momentum
@@ -103,8 +104,9 @@ TrkMomCalculator::vecMom(const TrkSimpTraj& theTraj, const BField&
      theMom.setMag(theTraj.parameters()->parameter()[NeutParams::_p]);
      return theMom;
 
-  } else if (theVisitor.cosmic() !=0){
-      return theTraj.mom()*theTraj.direction(fltlen); 
+  } else if (theVisitor.cosmicLine() !=0){
+      double pt = theVisitor.cosmicLine()->mom();
+      return pt*theTraj.direction(fltlen); 
 
   } else {
 
@@ -133,7 +135,7 @@ TrkMomCalculator::errMom(const TrkSimpTraj& theTraj, const BField&
 // treat as neutral particle, same as curve in this case
      return calcNeutErrMom(theTraj, theField, fltlen);
 
-  }  else if (theVisitor.cosmic() !=0){
+  }  else if (theVisitor.cosmicLine() !=0){
 
      return calcCosmicLineErrMom(theTraj,theField,fltlen);
  } else {
@@ -178,8 +180,8 @@ TrkMomCalculator::charge(const TrkSimpTraj& theTraj, const BField&
 // treat as neutral particle, so charge is zero
      return 0;
 
-  } else if (theVisitor.cosmic() !=0 ){
-      return calcCosmicLineCurvCharge(theTraj.mom()*theTraj.direction(fltlen), theTraj.curvature(fltlen), theField);
+  } else if (theVisitor.cosmicLine() !=0 ){
+      return calcCosmicLineCurvCharge(theVisitor.cosmicLine()->mom()*theTraj.direction(fltlen), theTraj.curvature(fltlen), theField);
 
 }else {
 
@@ -207,7 +209,7 @@ TrkMomCalculator::posmomCov(const TrkSimpTraj& theTraj,const BField& theField,
 // treat as neutral particle, same as curve in this case
     return calcNeutPosmomCov(theTraj, theField, fltlen);
 
-  } else if (theVisitor.cosmic()!=0){
+  } else if (theVisitor.cosmicLine()!=0){
 
     return calcCosmicLinePosmomCov(theTraj, theField, fltlen);
 
@@ -247,7 +249,7 @@ TrkMomCalculator::getAllCovs(const TrkSimpTraj& theTraj,
     // treat as neutral particle, same as curve in this case
     calcNeutAllCovs(theTraj,theField,fltlen,xxCov,ppCov,xpCov);
 
-  } else if (theVisitor.cosmic()){
+  } else if (theVisitor.cosmicLine()){
 
      calcCosmicLineAllCovs(theTraj,theField,fltlen,xxCov,ppCov,xpCov);
 
@@ -301,7 +303,7 @@ TrkMomCalculator::getAllWeights(const TrkSimpTraj& theTraj,
     calcNeutAllWeights(theTraj,theField,fltlen,
 		       pos,mom,xxWeight,ppWeight,xpWeight);
 
-  }else if (theVisitor.cosmic() != 0) {
+  }else if (theVisitor.cosmicLine() != 0) {
     calcCosmicLineAllWeights(theTraj,theField,fltlen,
 		       pos,mom,xxWeight,ppWeight,xpWeight);
    }else {  
@@ -498,9 +500,12 @@ TrkMomCalculator::calcCosmicLineErrMom(const TrkSimpTraj& theTraj,
   DifVector dirDif;
   DifVector delDirDif;
  
+  TrkMomVisitor theVisitor(theTraj);
+  double momval = 0;
+  if(theVisitor.cosmicLine() != 0) momval = theVisitor.cosmicLine()->mom();
   theTraj.getDFInfo(fltlen, posDif, dirDif, delDirDif);
   DifVector momDif = dirDif;
-  momDif *= theTraj.mom();
+  momDif *= momval;
 
   BbrError  symErr(momDif.errorMatrix(
                               momDif.x.indepPar()->covariance()));
@@ -660,9 +665,11 @@ TrkMomCalculator::calcCosmicLinePosmomCov(const TrkSimpTraj& theTraj,
   if (delDirDif.length() == 0.) {   
   }
   else {
-    DifNumber momMag = theTraj.mom(); 
-    momMag.absolute();
-    MomDif = DirDif * momMag;
+    TrkMomVisitor theVisitor(theTraj);
+    double momval= 0;
+    if(theVisitor.cosmicLine() != 0)  momval = theVisitor.cosmicLine()->mom();
+    
+    MomDif = DirDif * momval;
 
   }
 
@@ -1001,7 +1008,9 @@ TrkMomCalculator::calcCosmicLineAllCovs(const TrkSimpTraj& theTraj,
   double costheta = cos(theta);
   double sintheta = sin(theta);
 
-  double pt = theTraj.mom();
+  TrkMomVisitor theVisitor(theTraj);
+  double pt =0;
+  if(theVisitor.cosmicLine() != 0) pt = theVisitor.cosmicLine()->mom();
   //px= pt*cosphi*sintheta, py=pt*sintheta*sinphi, pz=pt*costheta
 
   // Calculate derivatives for Jacobian matrix //

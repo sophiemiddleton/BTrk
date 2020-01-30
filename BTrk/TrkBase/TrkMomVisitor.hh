@@ -40,7 +40,7 @@ public:
   const HelixTraj*       helix() const      {return _ht;}
   const TrkCircleTraj*   circle() const     {return _ct;}
   const NeutTraj*        neut() const       {return _nt;}   
-  const CosmicLineTraj*  cosmic() const     {return _cos;}   
+  const CosmicLineTraj*  cosmicLine() const     {return _cosLine;}   
 
   //********************************
   // The visitor functions:
@@ -56,7 +56,7 @@ private:
   const HelixTraj*      _ht;
   const TrkCircleTraj*  _ct;
   const NeutTraj*       _nt;
-  const CosmicLineTraj*  _cos;
+  const CosmicLineTraj*  _cosLine;
 
 };
 

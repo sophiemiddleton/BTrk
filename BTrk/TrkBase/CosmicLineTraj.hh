@@ -63,7 +63,7 @@ public:
   double phi0() const{  return parameters()->parameter()[phi0Index]; }
   double theta() const {return parameters()->parameter()[thetaIndex]; }
   double z0() const {  return parameters()->parameter()[z0Index]; }
-
+ 
   virtual void visitAccept(TrkVisitor* vis) const;
   virtual void               print(std::ostream& os) const;
   virtual void 		     printAll(std::ostream& os) const;
@@ -71,9 +71,12 @@ public:
   double z( const double& ) const;
   double zFlight(double zpos, double POCAz) const;
   double angle(const double& f) const;
-  double mom() const; 
-  
+  double mom() const{return _mommentum;};
+  void set_mom(double p){ _mommentum = p;}
+
   TranslateParams paramFunction() const; //not used
   void invertParams(TrkParams* newparams, std::vector<bool>& flags) const; // not used
+  private:
+	double _mommentum;
 };
 #endif
