@@ -74,9 +74,15 @@ public:
   double mom() const{return _mommentum;};
   void set_mom(double p){ _mommentum = p;}
 
-  TranslateParams paramFunction() const; //not used
-  void invertParams(TrkParams* newparams, std::vector<bool>& flags) const; // not used
+  TranslateParams paramFunction()const {return CosmicLineTraj::paramFunc;}
+  void invertParams(TrkParams* newparams, std::vector<bool>& flags) const; 
   private:
 	double _mommentum;
+	// the real point translation function
+  static void paramFunc(const HepPoint& oldpoint,const HepPoint& newpoint,
+                        const CLHEP::HepVector& oldpar,const CLHEP::HepSymMatrix& oldcov,
+                        CLHEP::HepVector& newpar,CLHEP::HepSymMatrix& newcov,
+			double fltlen);
+
 };
 #endif

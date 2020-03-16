@@ -11,6 +11,7 @@
 # package to be built.
 #
 
+
 if [ "`basename $0 2>/dev/null`" = "setup.sh" ];then
     echo "You should be sourcing this file, not executing it."
     exit 1
@@ -38,7 +39,7 @@ fi
 # They must be maintained by hand.
 # It's OK if EXTRA_ROOT_QUALIFIERS is an empty string
 export PACKAGE_NAME=BTrk
-export PACKAGE_VERSION=v1_02_21
+export PACKAGE_VERSION=v2_00_00
 export COMPILER_CODE=e19
 export EXTRA_ROOT_QUALIFIERS=""
 

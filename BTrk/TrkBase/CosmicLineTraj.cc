@@ -334,8 +334,21 @@ void CosmicLineTraj::visitAccept(TrkVisitor* vis) const
    vis->trkVisitCosmicLineTraj(this); 
 }
 
-void
-CosmicLineTraj::printAll(ostream& os) const
+void CosmicLineTraj::paramFunc(const HepPoint& oldpoint,const HepPoint& newpoint,
+                    const HepVector& oldvec,const HepSymMatrix& oldcov,
+                    HepVector& newvec,HepSymMatrix& newcov,
+                    double fltlen)
+{ 
+	std::cout<<"This function is obsolete "<<std::endl;
+}
+
+void CosmicLineTraj::invertParams(TrkParams* newparams, std::vector<bool>& flags) const
+{
+  	assert(1==0);
+
+}
+
+void CosmicLineTraj::printAll(ostream& os) const
 {
   os  << "CosmicLineTraj with range "
       << lowRange() <<" to " << hiRange() << " and parameters " << endl
