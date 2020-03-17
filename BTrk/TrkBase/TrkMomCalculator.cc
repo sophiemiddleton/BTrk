@@ -540,11 +540,12 @@ TrkMomCalculator::calcCosmicLineCurvCharge(const Hep3Vector& momVec,
                                  double curvature,
                                  const BField& theField) {
 //------------------------------------------------------------------------
-   if (theField.bFieldNominal() > 0.) {
+   /*if (theField.bFieldNominal() > 0.) {
      return -nearestInt(momVec.mag() * curvature / theField.bFieldNominal());
    } else {
      return nearestInt(momVec.mag() * curvature / theField.bFieldNominal());
-   }
+   }*/
+   return 1;
 }                          
 
 //------------------------------------------------------------------------
