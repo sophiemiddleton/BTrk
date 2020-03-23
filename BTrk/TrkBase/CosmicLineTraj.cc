@@ -83,14 +83,14 @@ CosmicLineTraj::~CosmicLineTraj()
 double
 CosmicLineTraj::z(const double& f) const  
 {
-  std::cout<<"[In ComsicLineTraj::z]"<<std::endl;
+  
   return  z0()+f*cos(theta())+referencePoint().z(); 
 }
 
 //zflight: returns the projection of the flight along the z axis.
 double
 CosmicLineTraj::zFlight(double zpos, double z0) const { 
-  std::cout<<"[In ComsicLineTraj::zFlight]"<<std::endl;
+  
   return (zpos - z0)/cos(theta());
 }
 
@@ -98,7 +98,7 @@ CosmicLineTraj::zFlight(double zpos, double z0) const {
 HepPoint
 CosmicLineTraj::position(double f) const  
 {
-  std::cout<<"[In ComsicLineTraj::position]"<<std::endl;
+ 
   double sphi0 = sin(phi0());
   double cphi0 = cos(phi0());
   //keep definition the same as for Helix for consistancy:
@@ -112,7 +112,7 @@ CosmicLineTraj::position(double f) const
 Hep3Vector
 CosmicLineTraj::direction(double f) const 
 {
-  std::cout<<"[In ComsicLineTraj::direction]"<<std::endl;
+ 
   double x_dir = cos(phi0())*sin(theta());
   double y_dir = sin(theta())*sin(phi0());
   double z_dir = cos(theta());
@@ -125,7 +125,7 @@ CosmicLineTraj::direction(double f) const
 Hep3Vector
 CosmicLineTraj::delDirect( double fltLen ) const
 {  
-  std::cout<<"[In ComsicLineTraj::delDirect]"<<std::endl;
+  
   double delX = 0;
   double delY = 0; 
   return Hep3Vector(delX, delY, 0.0);
@@ -146,7 +146,7 @@ CosmicLineTraj::distTo2ndError(double s, double tol, int pathDir) const
 void
 CosmicLineTraj::getInfo(double fltLen, HepPoint& pos, Hep3Vector& dir) const
 {
-  std::cout<<"[In ComsicLineTraj::getInfo]"<<std::endl;
+
   pos = position(fltLen);
   dir = direction(fltLen);
 }
@@ -155,7 +155,7 @@ void
 CosmicLineTraj::getInfo(double fltLen, HepPoint& pos, Hep3Vector& dir, 
                    Hep3Vector& delDir) const 
 {
-  std::cout<<"[In ComsicLineTraj::getInfo]"<<std::endl;
+ 
   pos = position(fltLen);
   dir = direction(fltLen);
   delDir = delDirect(fltLen);
@@ -172,7 +172,7 @@ CosmicLineTraj::derivDeflect(double fltlen, deflectDirection idirect) const //TO
 //  theta2 = phi()*sin(theta) can sometimes be added, as scattering in these
 //  are uncorrelated. These axes are track specific. as cosmics are not always coming along the same track direction it is necessary to have difference parameterization than that used for the helixal case.
 //
-  std::cout<<"[In ComsicLineTraj::derivDeflect]"<<std::endl;
+  
   HepMatrix ddflct(NHLXPRM,1);
 
   switch (idirect) {
@@ -200,7 +200,7 @@ CosmicLineTraj::derivDeflect(double fltlen, deflectDirection idirect) const //TO
 HepMatrix
 CosmicLineTraj::derivDisplace(double fltlen, deflectDirection idirect) const
 {
- std::cout<<"[In ComsicLineTraj::derivDispalce]"<<std::endl;
+ 
  HepMatrix ddflct(NHLXPRM,1);
 
  switch (idirect) {
@@ -225,7 +225,7 @@ CosmicLineTraj::derivDisplace(double fltlen, deflectDirection idirect) const
 
 //derivPFract: Function computes column marix of derivatives for parameters from a fractional change in the track momentium. Holds postion and direction constant. The momentum change could from energy loss.
 HepMatrix CosmicLineTraj::derivPFract(double fltLen) const {
-     std::cout<<"[In ComsicLineTraj::derivPFract]"<<std::endl;
+     
      HepMatrix dmomfrac(NHLXPRM,1);
     
      dmomfrac(z0Index+1,1) = 0;
@@ -244,7 +244,7 @@ CosmicLineTraj::getDFInfo(double flt, DifPoint& pos, DifVector& dir,
   //Provides difNum version of information for calculation of derivatives.
   //  All arithmetic operations have been replaced by +=, etc. versions 
   //  for speed.
-  std::cout<<"[In ComsicLineTraj::getDFInfo]"<<std::endl;
+
   DifNumber phi0Df(phi0(), phi0Index+1, NHLXPRM);
   phi0Df.setIndepPar( parameters() );
   DifNumber d0Df(d0(), d0Index+1, NHLXPRM);
@@ -289,7 +289,7 @@ void CosmicLineTraj::getDFInfo2(double flt, DifPoint& pos, DifVector& dir) const
   //Provides difNum version of information for calculation of derivatives.
   //  All arithmetic operations have been replaced by +=, etc. versions 
   //  for speed.
-  std::cout<<"[In ComsicLineTraj::getDFInfo2]"<<std::endl;
+
 
   DifNumber phi0Df(phi0(), phi0Index+1, NHLXPRM);
   phi0Df.setIndepPar( parameters() );
@@ -325,22 +325,18 @@ void CosmicLineTraj::getDFInfo2(double flt, DifPoint& pos, DifVector& dir) const
     pos.y += py;
     pos.z += pz;
   }
-
-
 }
-
 
 double
 CosmicLineTraj::curvature(double fltLen) const
 {
-  std::cout<<"[In ComsicLineTraj::curvature]"<<std::endl;
   return 0;
 }
 
 
 void CosmicLineTraj::visitAccept(TrkVisitor* vis) const
 { 
-   std::cout<<"[In ComsicLineTraj::visitAccept]"<<std::endl;
+   
    vis->trkVisitCosmicLineTraj(this); 
 }
 

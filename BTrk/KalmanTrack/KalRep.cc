@@ -66,7 +66,6 @@ void
 KalRep::init(const HelixParams& inPar)
 {
 
-   std::cout<<"[In KalRep () ] Init..."<<std::endl;
 //  Construct the seed traj as a helix from the input parameters, using the origin
   _seedtraj = new HelixTraj(inPar);
   initFromSeed();
@@ -74,7 +73,7 @@ KalRep::init(const HelixParams& inPar)
 
 void
 KalRep::init(const CosmicLineParams& inPar){
- std::cout<<"[In KalRep () ] Init..."<<std::endl;
+ 
   _seedtraj = new CosmicLineTraj(inPar);
   initFromSeed();
 }
@@ -82,14 +81,12 @@ KalRep::init(const CosmicLineParams& inPar){
 // initialize from the seed traj;
 void
 KalRep::initFromSeed() {
-	std::cout<<"[In KalRep () ] InitFromSeed..."<<std::endl;
 	initRep();
 	initSites();
 }
 
 void
 KalRep::initRep() {
- std::cout<<"[In KalRep () ] InitRep..."<<std::endl;
 // sort the hits
   sortHits();
 // reserve a nominal size for sites
@@ -123,7 +120,6 @@ KalRep::initRep() {
 }
 void
 KalRep::initSites() {
-  std::cout<<"[In KalRep () ] InitSites..."<<std::endl;
 // build the hit sites
   buildHitSites();
 // build the KalMaterial sites
@@ -155,7 +151,7 @@ KalRep::KalRep(TrkSimpTraj const& seed,
   _seedtraj((TrkSimpTraj*)(seed.clone())),
   _stopsite(0)
 { 
-  std::cout<<"[In KalRep () ] Constructor..."<<std::endl;
+
   //set T0 and flt0
   _trkt0 = t0; 
   _flt0  = flt0;
@@ -212,7 +208,7 @@ KalRep::helix(double fltlen) const {
 
 
 CosmicLineParams KalRep::cosmic(double fltlen) const {
-  std::cout<<"[In KalRep () ] Cosmic..."<<std::endl;
+
   double locflight;
   const TrkSimpTraj* ltraj = localTrajectory(fltlen,locflight);
 
@@ -233,7 +229,7 @@ KalRep::chisq() const {
 }
 //
 double KalRep::chisquared(trkDirection tdir) const {
-    std::cout<<"[In KalRep () ] ChiSquared..."<<std::endl;
+
 //  See if the cache is valid (it's self-flagging)
   if(_chisq[tdir] < 0.0) {
     if(hasFit(tdir)){
@@ -248,7 +244,7 @@ int nsites = _sites.size();
 }
 
 double KalRep::chisquared(int startsite,int nsites,trkDirection tdir) const {
-  std::cout<<"[In KalRep () ] ChiSquared..."<<std::endl;
+ 
   int sitestep = tdir==trkOut ? 1 : -1;
   int isite(startsite);
   const KalSite* prevsite = _sites[isite];
@@ -278,7 +274,7 @@ KalRep::chisquared(double fltlen,trkDirection tdir) const {
 
 int
 KalRep::nDof(double fltlen,trkDirection tdir) const {
-  std::cout<<"[In KalRep () ] DoF 1..."<<std::endl;
+
 // first, find the sites; I really want 1 past the one found by this function
   int nearest = findNearestSite(fltlen) + 1;
 //  Determine the start for this direction
@@ -298,7 +294,7 @@ KalRep::nDof(double fltlen,trkDirection tdir) const {
 
 int 
 KalRep::nDof() const {
-  std::cout<<"[In KalRep () ] Dof 2..."<<std::endl;
+
   int dof(0);
   for(unsigned isite= 0;isite<_sites.size();isite++)
     dof += _sites[isite]->nDof();
@@ -309,14 +305,13 @@ KalRep::nDof() const {
 
 bool
 KalRep::enoughDofs() const {
-  std::cout<<"[In KalRep () ] Enough..."<<std::endl;
   bool retval = nDof() >= (int)_kalcon.minDOF();
   return retval;
 }
 
 double
 KalRep::hitChisq(const TrkHit* hit,bool exclude) const {
-  std::cout<<"[In KalRep () ] hitChiSq..."<<std::endl;
+ 
   double chisq = -1.0;
   double chival,chierr2;
   if(hitChi(hit,chival,chierr2,exclude))
@@ -329,7 +324,7 @@ KalRep::hitChi(const TrkHit* hit,
 	       double& chival,
 	       double& chierr2,
 	       bool exclude) const {
-  std::cout<<"[In KalRep () ] HitChi..."<<std::endl;
+
   bool retval(false);
   if(fitValid()){
 // find the hit site
@@ -375,7 +370,7 @@ KalRep::hitChi(const TrkHit* hit,
 
 double
 KalRep::hitChisq(const TrkHit* hit,trkDirection tdir) const {
-  std::cout<<"[In KalRep () ] HitChi..."<<std::endl;
+  
   double chisq = -1.0;
   if(!needsFit(tdir)){
 // find the hit site
@@ -394,7 +389,7 @@ KalRep::hitChisq(const TrkHit* hit,trkDirection tdir) const {
 }
 double
 KalRep::matchChisq(double fltlen,bool* tparams) const {
-  std::cout<<"[In KalRep () ] MatchChiSq..."<<std::endl;
+
   double chisqFB = -1.0;
 //  Find the sites which bound this flightlength
   const KalSite* insite;
@@ -410,7 +405,7 @@ KalRep::resid(const TrkHit *hit,
               double& resval, double& reserr,
               bool exclude) const
 {
-   std::cout<<"[In KalRep () ] Resid..."<<std::endl;
+   
    double chival,chierr2;
    bool b=hitChi(hit,chival,chierr2,exclude); 
    if (b) {
@@ -469,7 +464,7 @@ KalRep::print(ostream& ostr) const {
 //
 TrkErrCode
 KalRep::fit(){
-   std::cout<<"[In KalRep () ] Fit..."<<std::endl;
+
 // if the fit is already current, no need to do anything
   if(fitCurrent())
     return TrkErrCode(TrkErrCode::succeed,KalCodes::current,
@@ -511,7 +506,7 @@ KalRep::fit(){
 // iteration, used to converge in the fit
 TrkErrCode
 KalRep::iterateFit(){
-  std::cout<<"[In KalRep () ] IterateFit..."<<std::endl;
+
   TrkErrCode fiterr(TrkErrCode::fail);
   while(_niter <= _kalcon.maxIterations() && !converged()){
 // iteration sequence: update, fit, build the trajectory
@@ -541,7 +536,7 @@ KalRep::iterateFit(){
 // 'fit' a single direction.  No trajectory is produced.
 TrkErrCode
 KalRep::fit(trkDirection tdir){
-  std::cout<<"[In KalRep () ] fit..."<<std::endl;
+ 
   TrkErrCode retval;
 // if the fit is already current, no need to do anything
   if(needsFit(tdir)){
@@ -571,14 +566,14 @@ KalRep::fit(trkDirection tdir){
 //
 void
 KalRep::setFitRange(double newrange[2]){
-  std::cout<<"[In KalRep () ] SetFitRange..."<<std::endl;
+  
   _fitrange[0] = newrange[0];
   _fitrange[1] = newrange[1];
 }
 
 void
 KalRep::setFitRange(double lowrange, double hirange){
-  std::cout<<"[In KalRep () ] SetFitRange.."<<std::endl;
+ 
   if( lowrange < hirange ) {
     _fitrange[0] = lowrange;
     _fitrange[1] = hirange;
@@ -594,7 +589,7 @@ KalRep::setFitRange(double lowrange, double hirange){
 //
 TrkErrCode
 KalRep::buildTraj(){
-  std::cout<<"[In KalRep () ] BuildTraj..."<<std::endl;
+
   TrkErrCode retval; // preset to success
 // set its parameters according the inner site parameters
   KalSite* firstsite = _sites[_hitrange[0]];
@@ -685,7 +680,7 @@ KalRep::buildTraj(){
 //  Process the sites in a given direction between the specified limits
 bool
 KalRep::process(KalSite* psite,int startindex,int endindex,trkDirection fdir) {
-  std::cout<<"[In KalRep () ] Process..."<<std::endl;
+  
   int step = fdir==trkOut ? 1 : -1;
   int nstep = fdir==trkOut ? endindex-startindex+1 : startindex-endindex+1;
   const KalSite* prevsite = psite;
@@ -718,7 +713,7 @@ KalRep::process(KalSite* psite,int startindex,int endindex,trkDirection fdir) {
 //
 KalHit*
 KalRep::findHitSite(const TrkHit* thehit,unsigned& siteindex) const {
-  std::cout<<"[In KalRep () ] FindHitSite..."<<std::endl;
+ 
 //  Find the hit; exhaustive search for now
   KalHit* returnhit(0);
   for(unsigned isite=0;isite<_sites.size();isite++)
